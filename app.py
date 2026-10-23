@@ -269,7 +269,7 @@ def live():
     with left:
         st.markdown('<div class="section">Your gas cylinder</div>', unsafe_allow_html=True)
         mm = num(level.get("level_mm")) if level_online and level.get("valid") is True else None
-        mm-=56
+        #mm-=56
         pct = max(0, min(100, 100 * mm / reference_height)) if mm is not None else None
         # The gauge remains visible even if Firebase reports an invalid measurement.
         # This prevents an invalid/no-liquid frame from looking like an empty cylinder.
