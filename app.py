@@ -78,12 +78,12 @@ for key, default in {
 
 # Configure once via .streamlit/secrets.toml or FIREBASE_API_KEY environment variable.
 api_key = SAVED_KEY
-reference_height = 200
+reference_height = 4000
 with st.sidebar:
     st.header("About your Smart LPG")
     st.caption("Internet-connected prototype · Two ESP32-C3 devices")
     with st.expander("Cylinder calibration"):
-        reference_height = st.number_input("Reference LPG height (mm)", 30, 1000, 200, 10)
+        reference_height = st.number_input("Reference LPG height (mm)", 30, 5000, 4000, 10)
         st.caption("Percentage is measured height / reference, not LPG volume.")
     st.caption("No local IP address or user-entered control token required.")
 
@@ -220,6 +220,7 @@ def live():
     with left:
         st.markdown('<div class="section">Your gas cylinder</div>', unsafe_allow_html=True)
         mm = num(level.get("level_mm")) if level_online and level.get("valid") is True else None
+        mm-=56
         pct = max(0, min(100, 100 * mm / reference_height)) if mm is not None else None
         # The gauge remains visible even if Firebase reports an invalid measurement.
         # This prevents an invalid/no-liquid frame from looking like an empty cylinder.
@@ -254,6 +255,7 @@ def live():
             status_class = fill_class
             status_text = "Low measured level" if pct < 25 else "Level reading available"
             detail = f"Measured LPG height: {mm:.0f} mm"
+        #<div class="cylinder-note">Live gas level measurement · Percentage is height / {reference_height} mm reference, not calibrated LPG volume.</div>
         st.markdown(f'''<div class="cylinder-card">
             <div class="kicker">YOUR LPG CYLINDER</div>
             <div class="cylinder-layout">
