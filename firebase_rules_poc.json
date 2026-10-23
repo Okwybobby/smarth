@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "lpg_sensor": { ".read": "auth != null", ".write": "auth != null" },
+    "devices": {
+      "smart_regulator": { ".read": "auth != null", ".write": "auth != null" }
+    },
+    "commands": {
+      "smart_regulator": { ".read": "auth != null", ".write": "auth != null" },
+      "smart_regulator_ack": { ".read": "auth != null", ".write": "auth != null" }
+    }
+  }
+}
