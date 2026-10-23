@@ -4,6 +4,9 @@ import time
 import uuid
 import os
 import html
+import base64
+from pathlib import Path
+from PIL import Image
 from collections import deque
 from datetime import datetime
 
@@ -11,7 +14,10 @@ import pandas as pd
 import requests
 import streamlit as st
 
-st.set_page_config(page_title="Smart LPG Home", page_icon="🏠", layout="wide", initial_sidebar_state="collapsed")
+ASSET_DIR = Path(__file__).resolve().parent
+st.set_page_config(page_title="Smart LPG Home", page_icon=Image.open(ASSET_DIR / "nnpc_favicon.jpg"), layout="wide", initial_sidebar_state="collapsed")
+with (ASSET_DIR / "nnpc_logo.jpg").open("rb") as logo_file:
+    NNPC_LOGO_DATA = base64.b64encode(logo_file.read()).decode("ascii")
 DB_URL = "https://lp06-test-default-rtdb.firebaseio.com"
 
 # st.secrets.get() raises when no secrets file exists. Handle that gracefully.
@@ -41,7 +47,50 @@ st.markdown('''<style>
 .track {height:14px;border-radius:40px;background:#eaf0f3;overflow:hidden;margin:18px 0 12px}
 .fill {height:100%;background:linear-gradient(90deg,#12a78d,#59d5a5);border-radius:40px}
 .section {font-size:20px;font-weight:800;margin:19px 0 12px}
-div.stButton>button {border-radius:13px;min-height:45px;font-weight:750}
+/* Explicit button colors across Streamlit themes, including mobile dark mode. */
+div.stButton > button {
+  border-radius:13px !important;
+  min-height:48px !important;
+  font-weight:750 !important;
+  opacity:1 !important;
+  -webkit-text-fill-color:currentColor;
+  transition:background-color .15s ease,border-color .15s ease;
+}
+/* Close regulator: primary control. */
+div.stButton > button[kind="primary"]:not(:disabled) {
+  background:#146b63 !important;
+  border:1px solid #146b63 !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+}
+div.stButton > button[kind="primary"]:not(:disabled):hover {
+  background:#0e514c !important;
+  border-color:#0e514c !important;
+}
+/* Open and auxiliary controls: light, clearly legible on mobile. */
+div.stButton > button[kind="secondary"]:not(:disabled) {
+  background:#e7f4f1 !important;
+  border:1px solid #86bfb5 !important;
+  color:#123e42 !important;
+  -webkit-text-fill-color:#123e42 !important;
+}
+div.stButton > button[kind="secondary"]:not(:disabled):hover {
+  background:#cde9e2 !important;
+  border-color:#4e9f90 !important;
+}
+div.stButton > button:disabled {
+  background:#e4e9ef !important;
+  border:1px solid #cbd5e1 !important;
+  color:#65758b !important;
+  -webkit-text-fill-color:#65758b !important;
+  opacity:1 !important;
+  cursor:not-allowed !important;
+}
+div.stButton > button p {color:inherit !important;font-weight:inherit !important;}
+/* Brand logo replaces decorative icons in the dashboard header. */
+.hero-brand {display:flex;align-items:center;justify-content:space-between;gap:18px}
+.hero-logo {width:90px;height:90px;object-fit:contain;background:#fff;padding:10px;border-radius:16px;flex-shrink:0}
+@media(max-width:600px){.hero{padding:22px 18px}.hero-logo{width:65px;height:65px;padding:7px}.hero h1{font-size:29px}}
 
 /* Consumer cylinder gauge: measured height, never a simulated reading. */
 .cylinder-card {background:#fff;border:1px solid #e7ebf2;border-radius:20px;padding:22px 25px;margin-bottom:14px;min-height:322px;box-shadow:0 5px 19px rgba(20,36,58,.035)}
@@ -169,7 +218,7 @@ def send(action):
         st.session_state.command_result = (False, "Internet connection error while sending command")
 
 
-st.markdown('<div class="hero"><span class="eyebrow">SMARTH · PROOF OF CONCEPT</span><h1>SmartH</h1><p>IoT-Enabled Smart Household LPG Regulator</p></div>', unsafe_allow_html=True)
+st.markdown(f'''<div class="hero"><div class="hero-brand"><div><span class="eyebrow">SMARTH · PROOF OF CONCEPT</span><h1>SmartH</h1><p>IoT-Enabled Smart Household LPG Regulator</p></div><img class="hero-logo" src="data:image/png;base64,{NNPC_LOGO_DATA}" alt="NNPC logo"></div></div>''', unsafe_allow_html=True)
 
 if not api_key:
     st.info("Configure FIREBASE_API_KEY once in .streamlit/secrets.toml. See README.md. No login or token entry is needed in the app.")
